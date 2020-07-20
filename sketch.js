@@ -1,9 +1,10 @@
 //Create variables here
 var dog, database, happyDog;
-var foodS;
-var foodStock;
 var dogSprite;
-
+var feed, addFood;
+var fedTime, lastFed;
+var foodObj;
+var foodS = 20;
 function preload()
 {
   //load images here
@@ -12,47 +13,81 @@ function preload()
 }
 
 async function setup() {
-  createCanvas(500, 500);
+  createCanvas(windowWidth, windowHeight);
   database = firebase.database();
-  dogSprite = createSprite(250, 250, 70, 70); 
+  dogSprite = createSprite(1000, 250, 70, 70); 
   dogSprite.addImage("HAPPY",happyDog);
   dogSprite.addImage("doggy", dog); 
   dogSprite.changeImage("doggy", dog);
-  foodStock = await database.ref("Food").once("value") ;
-  if(foodStock.exists()){
-    foodS = foodStock.val();
-  database.ref("Food").on("value", function(data){
-     foodS = data.val();
-  });
+  foodObj = new Food();
+  foodObj.getFoodStock();
+  feed = createButton("Feed");
+  feed.position(900, 100); 
+  addFood = createButton("Add Food")
+  addFood.position(1000, 95);
+  var foodStockRef = await database.ref("Food").once("value");
+  if(foodStockRef.exists()){
+    foodS = foodStockRef.val();
+    foodObj.getFoodStock();
+  }
 }
 
  
 
-}
+
 
 
 function draw() {  
   background(46, 139, 87);
   drawSprites();
   //add styles here
-  textSize(30);
-  fill("red");
-  text("No. of bottles :" + foodS, 100, 400);
- //dogSprite.changeImage("HAPPY", happyDog);  
   
-}
+  foodObj.display();
+   
+ 
+ feed.mousePressed(feedDog);
+ addFood.mousePressed(addFoods); 
 
+ fedTime = database.ref('lastFed');
+ fedTime.on("value", function(data){
+   lastFed = data.val();
+ });
+ textSize(30);
+  fill(0, 0, 0);
 
-
-function writeStock(x){
-  database.ref("/").update({
-    Food:x
-  })
-}
-function keyPressed(){
-if(keyCode = "up"){
-  foodS = foodS - 1;
-  writeStock(foodS);
-  dogSprite.changeImage("HAPPY",happyDog);
+  if(lastFed>12){
+    console.log(lastFed);
+    text("Last Feed : " + (lastFed - 12) + " p.m.", 350, 30);
+  } else if(lastFed==12){
+    text("Last Feed : 12 p.m.", 350, 30);
+  }else if(lastFed==0){
+    text("Last Feed : 12 a.m.", 350, 30);
+  } else{
+    text("Last Feed : " + lastFed + " a.m.", 350, 30);
   }
 }
+
+
+function addFoods(){
+  foodS++;
+  database.ref('/').update({
+    Food: foodS
+  })
+}
+function feedDog(){
+  dogSprite.changeImage("HAPPY",happyDog);
+  foodObj.deductFood();
+  foodObj.updateFoodStock(foodS);
+  foodObj.getFoodStock();
+  database.ref('/').update({
+    lastFed:hour()
+  });
+}
+
+
+
+
+
+ 
+  
+
