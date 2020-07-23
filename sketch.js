@@ -87,15 +87,15 @@ function draw() {
        update("playing");
      } else if(currentTime == lastFed + 2||
      currentTime == (lastFed + 2) - 24){
-       bedroom();
+      foodObj.bedroom();
        update("sleeping");
      } else if(currentTime == lastFed + 4 
       || currentTime == (lastFed + 4) - 24){
-        washroom();
+        foodObj.washroom();
         update("bathing");
       } else {
         update("hungry");
-        dog.display();
+        foodObj.display();
       }
 }
 function update(state){
