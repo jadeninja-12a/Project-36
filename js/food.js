@@ -18,6 +18,15 @@ class Food{
     deductFood(){
         foodS--;
     }
+    bedroom(){
+        background(bedroom);
+      }
+      washroom(){
+        background(washroom);
+      }
+      garden(){
+        background(garden);
+      }
     display(){
         var x = 80;
         var y = 100;
